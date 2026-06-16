@@ -1,0 +1,114 @@
+product StoreFront
+    name "E-commerce Product Page"
+    version "0.1"
+    description "Product detail page with cart functionality"
+
+data Product
+    field id
+        type uuid
+        primary true
+    field name
+        type string
+        required true
+    field price
+        type float
+        min 0
+    field description
+        type string
+    field images
+        type list of url
+    field variants
+        type list of Variant
+    field in_stock
+        type boolean
+        default true
+
+data Variant
+    field id
+        type uuid
+    field name
+        type string
+    field price_modifier
+        type float
+        default 0
+    field available
+        type boolean
+        default true
+
+data CartItem
+    field product
+        type reference Product
+    field variant
+        type reference Variant
+    field quantity
+        type integer
+        min 1
+        max 10
+
+screen ProductDetail
+    title product.name
+    layout single-column
+
+    section hero
+        show product.images as carousel
+            autoplay false
+            thumbnails below
+
+    section info
+        show product.name as heading
+        show product.price as currency
+        show product.description as text
+
+    section variants
+        show product.variants as selector
+            style buttons
+            disable if not available
+
+    section actions
+        field quantity
+            type number
+            min 1
+            max 10
+            default 1
+        button "Add to Cart"
+            action add_to_cart
+            disabled if not product.in_stock
+            style primary large
+
+    section details
+        tabs
+            tab "Description" show product.description
+            tab "Shipping" show shipping_info
+            tab "Returns" show return_policy
+
+flow AddToCart
+    trigger button.click "Add to Cart" on ProductDetail
+    step validate
+        check product.in_stock is true
+        check selected variant is available
+        check quantity <= available stock
+    step add
+        create CartItem with product, variant, quantity
+        update cart total
+    step feedback
+        show toast "Added to cart"
+        animate cart icon
+
+rule StockCheck
+    apply to flow AddToCart
+    require product.in_stock is true
+    require quantity <= available_stock
+    on violation
+        show message "Sorry, this item is out of stock"
+        disable add to cart button
+
+example "Add product to cart"
+    given product "Blue T-Shirt" is in stock
+    given variant "Large" is available
+    when click "Add to Cart" with quantity 2
+    then cart contains 2x "Blue T-Shirt (Large)"
+    then toast shows "Added to cart"
+
+deploy cloudflare-pages
+    domain "store.example.com"
+    ssr true

@@ -1,0 +1,100 @@
+product LeadQualifier
+    name "Lead Qualification Bot"
+    version "0.1"
+    description "AI agent that qualifies inbound leads through conversation"
+
+data Lead
+    field id
+        type uuid
+        primary true
+    field email
+        type email
+        required true
+    field company
+        type string
+    field role
+        type string
+    field team_size
+        type integer
+    field budget
+        type enum
+        options ["< $1k", "$1k-$10k", "$10k-$50k", "$50k+", "unknown"]
+        default "unknown"
+    field score
+        type integer
+        min 0
+        max 100
+        default 0
+    field status
+        type enum
+        options ["new", "qualifying", "qualified", "disqualified", "handed_off"]
+        default "new"
+    field conversation
+        type list of map
+    field created_at
+        type timestamp
+        default now
+
+agent Qualifier
+    role "Sales development representative"
+    personality "Professional, curious, not pushy. Asks one question at a time."
+    goal "Determine if the lead is a good fit based on company size, budget, and use case"
+
+    on lead.created
+        greet lead by name if available
+        ask about their role and company
+        set lead.status "qualifying"
+
+    on lead.reply
+        extract information from response
+        update lead fields
+        calculate score
+
+        if score >= 70
+            set lead.status "qualified"
+            hand off to sales team
+            send summary to CRM
+        else if disqualifying_signal detected
+            set lead.status "disqualified"
+            send polite decline with alternatives
+        else
+            ask next qualifying question
+            max 5 questions total
+
+rule Scoring
+    apply to Lead
+    add 20 points if team_size > 10
+    add 30 points if budget is "$10k-$50k" or "$50k+"
+    add 20 points if role contains "founder" or "cto" or "vp"
+    add 15 points if company domain has > 50 employees
+    add 15 points if use case matches our product
+
+rule MaxQuestions
+    apply to agent Qualifier
+    require conversation length <= 5 exchanges
+    on violation
+        if score >= 50
+            qualify with note "needs follow-up"
+        else
+            disqualify politely
+
+example "High-value lead gets qualified"
+    given lead with email "cto@bigcorp.com"
+    given lead says "We're a 200-person team looking for automation"
+    given lead says "Budget is around $30k annually"
+    when agent finishes qualifying
+    then lead.score >= 70
+    then lead.status is "qualified"
+    then sales team is notified
+
+example "Poor fit gets disqualified gracefully"
+    given lead with email "student@university.edu"
+    given lead says "I'm working on a school project"
+    when agent detects disqualifying signal
+    then lead.status is "disqualified"
+    then response includes helpful alternatives
+
+deploy cloudflare-workers
+    trigger webhook on lead.created
+    trigger webhook on lead.reply
+    memory 128mb

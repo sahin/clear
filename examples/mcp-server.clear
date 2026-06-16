@@ -1,0 +1,89 @@
+product AnalyticsMCP
+    name "Analytics MCP Server"
+    version "0.1"
+    description "Model Context Protocol server that provides analytics data to AI assistants"
+
+data Metric
+    field name
+        type string
+        required true
+    field value
+        type float
+    field timestamp
+        type timestamp
+        default now
+    field dimensions
+        type map
+
+data Report
+    field id
+        type uuid
+        primary true
+    field title
+        type string
+    field date_range
+        type map
+        fields start (timestamp), end (timestamp)
+    field metrics
+        type list of Metric
+
+skill QueryMetrics
+    input metric_name (string)
+    input date_range (map: start, end)
+    input dimensions (map, optional)
+    output results (list of Metric)
+    method
+        validate date_range is not future
+        query database for matching metrics
+        aggregate by dimensions if provided
+        return sorted by timestamp
+
+skill GenerateReport
+    input title (string)
+    input metrics (list of string)
+    input date_range (map: start, end)
+    output report (Report)
+    method
+        for each metric in metrics
+            query using QueryMetrics
+        compile into Report
+        calculate trends and comparisons
+        return report
+
+skill ListAvailableMetrics
+    output metrics (list of string)
+    method
+        query distinct metric names from database
+        return sorted alphabetically
+
+api MCP
+    tool query_metrics
+        description "Query a specific metric over a date range"
+        use skill QueryMetrics
+    tool generate_report
+        description "Generate an analytics report with multiple metrics"
+        use skill GenerateReport
+    tool list_metrics
+        description "List all available metric names"
+        use skill ListAvailableMetrics
+
+    resource metrics://daily
+        description "Daily aggregated metrics"
+        return latest day of all metrics
+
+    prompt analyze
+        description "Analyze trends in the data"
+        template """
+            Look at {{metric_name}} over the past {{period}}.
+            Identify trends, anomalies, and provide recommendations.
+        """
+
+config production
+    database url from env ANALYTICS_DB_URL
+    cache redis from env REDIS_URL
+    cache_ttl 5 minutes
+
+deploy docker
+    port 3000
+    protocol stdio
+    health_check /health

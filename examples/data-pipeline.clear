@@ -1,0 +1,118 @@
+product DataSync
+    name "Customer Data Pipeline"
+    version "0.1"
+    description "ETL pipeline that syncs customer data from multiple sources"
+
+data Customer
+    field id
+        type uuid
+        primary true
+    field email
+        type email
+        unique true
+    field name
+        type string
+    field source
+        type enum
+        options ["stripe", "hubspot", "intercom", "manual"]
+    field metadata
+        type map
+    field synced_at
+        type timestamp
+        default now
+
+data SyncLog
+    field id
+        type uuid
+        primary true
+    field source
+        type string
+    field records_processed
+        type integer
+    field records_created
+        type integer
+    field records_updated
+        type integer
+    field errors
+        type list of string
+    field started_at
+        type timestamp
+    field completed_at
+        type timestamp
+
+flow SyncFromStripe
+    trigger schedule every 1 hour
+    step extract
+        fetch customers from Stripe API
+        paginate through all results
+        store raw records
+    step transform
+        map stripe_email to Customer.email
+        map stripe_name to Customer.name
+        set source to "stripe"
+        merge metadata fields
+    step load
+        for each record
+            if Customer exists with email
+                update existing record
+                increment records_updated
+            else
+                create new Customer
+                increment records_created
+    step log
+        create SyncLog with counts
+        set completed_at to now
+
+flow SyncFromHubspot
+    trigger schedule every 1 hour
+    step extract
+        fetch contacts from HubSpot API
+        filter modified since last sync
+    step transform
+        map hubspot_email to Customer.email
+        map firstname + lastname to Customer.name
+        set source to "hubspot"
+    step load
+        deduplicate by email
+        upsert into Customer
+    step log
+        create SyncLog with counts
+
+flow Deduplicate
+    trigger schedule every 24 hours
+    step find
+        group Customers by email
+        filter groups with count > 1
+    step merge
+        for each duplicate group
+            keep oldest record as primary
+            merge metadata from all records
+            update references to point to primary
+            delete duplicates
+    step report
+        log merge count
+        notify admin if merges > 100
+
+rule DataQuality
+    apply to Customer
+    require email is valid format
+    require name is not empty
+    require source is not null
+    on violation
+        quarantine record
+        log to errors
+
+event SyncCompleted
+    payload source, records_processed, duration
+    emit after any Sync flow completes
+
+config production
+    stripe_key from env STRIPE_SECRET_KEY
+    hubspot_key from env HUBSPOT_API_KEY
+    database url from env DATABASE_URL
+    log_level "info"
+
+deploy docker
+    schedule cron
+    memory 512mb
+    timeout 5 minutes

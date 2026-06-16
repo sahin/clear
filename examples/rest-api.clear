@@ -1,0 +1,113 @@
+product TaskAPI
+    name "Task Management API"
+    version "0.1"
+    description "RESTful API for managing tasks and projects"
+
+data Task
+    field id
+        type uuid
+        primary true
+    field title
+        type string
+        required true
+        min_length 1
+        max_length 200
+    field description
+        type string
+    field status
+        type enum
+        options ["todo", "in_progress", "done"]
+        default "todo"
+    field priority
+        type enum
+        options ["low", "medium", "high", "urgent"]
+        default "medium"
+    field assignee
+        type reference User
+    field due_date
+        type timestamp
+    field created_at
+        type timestamp
+        default now
+    field updated_at
+        type timestamp
+        default now
+
+data User
+    field id
+        type uuid
+        primary true
+    field name
+        type string
+        required true
+    field email
+        type email
+        unique true
+        required true
+
+api REST /tasks
+    get /
+        return list of Task
+        paginate 20 per page
+        filter by status, priority, assignee
+        sort by created_at desc
+
+    get /:id
+        return Task by id
+        include assignee details
+        error 404 if not found
+
+    post /
+        accept title, description, priority, assignee, due_date
+        validate with rules
+        set created_at to now
+        return created Task
+        status 201
+
+    put /:id
+        accept title, description, status, priority, assignee, due_date
+        set updated_at to now
+        return updated Task
+        error 404 if not found
+
+    delete /:id
+        remove Task by id
+        status 204
+        error 404 if not found
+
+api REST /users
+    get /
+        return list of User
+    get /:id
+        return User by id
+        include tasks assigned
+
+rule TaskValidation
+    apply to Task
+    require title is not empty
+    require due_date is in the future when creating
+    require assignee exists in User
+
+example "Create a task"
+    when post /tasks
+        with title "Ship v0.1"
+        with priority "high"
+    then status is 201
+    then response has id
+    then response has created_at
+
+example "List tasks filtered by status"
+    given 3 tasks with status "todo"
+    given 2 tasks with status "done"
+    when get /tasks?status=todo
+    then response has 3 items
+
+config production
+    database url from env DATABASE_URL
+    port 8080
+    cors allow ["https://myapp.com"]
+    rate_limit 100 per minute per ip
+
+deploy cloudflare-workers
+    routes /tasks/*, /users/*
+    database d1
