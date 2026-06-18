@@ -2,6 +2,19 @@
 
 This document explains the reasoning behind Clear's core design choices.
 
+## The Core Vision: English to Machine Code
+
+The ultimate goal of Clear is to eliminate everything between human intent and machine execution:
+
+```
+Traditional:    Idea → Spec → Code → Machine Code
+Clear:          Idea → Clear → Machine Code
+```
+
+Every programming language in history has been a compromise — a middle ground between what humans think and what machines execute. Clear's bet is that we no longer need that middle ground. Structured English, interpreted by an intelligent runtime, can go directly to execution.
+
+This is not "low-code" or "no-code" — those still require you to think in the tool's abstractions. Clear requires you to think only in your product's language.
+
 ## Why "the spec is the code"?
 
 In traditional development, there are at least four artifacts that describe a system:

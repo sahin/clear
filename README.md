@@ -5,7 +5,7 @@
 <h1 align="center">Clear</h1>
 
 <p align="center">
-  <strong>The spec is the code.</strong>
+  <strong>English to Machine Code. Nothing between.</strong>
 </p>
 
 <p align="center">
@@ -17,22 +17,32 @@
 
 ---
 
-Clear is a programming language where your **specification and implementation are the same file**. If you can describe what it should do, you have already written it.
+## The Vision
 
-No translation step. No drift between docs and behavior. No "the code is the source of truth" argument — because spec and code are the same artifact.
+Traditional software development has too many layers between what you want and what runs:
+
+```
+Traditional:    Idea → Spec → Code → Machine Code
+Clear:          Idea → Clear → Machine Code
+```
+
+Clear eliminates the translation steps. You write what the system should do — in structured English — and it executes. No programming language in the middle. No spec that drifts from the implementation. **The spec is the code.**
+
+---
+
+Clear is a programming language where your **specification and implementation are the same file**. If you can describe what it should do, you have already written it.
 
 ## Goals
 
+- **English, not code.** Write in structured natural language. No syntax to memorize, no abstractions to learn.
+- **Directly executable.** What you write is what runs. No compilation step, no intermediate representation you need to understand.
 - **Readable by anyone.** A product manager, a designer, or a new engineer can read a `.clear` file and understand what the system does.
-- **Executable as-is.** The same file that describes behavior is the file that runs. Zero compilation gap.
-- **One file format.** Products, data schemas, screens, flows, rules, agents, and skills — all expressed in the same syntax.
+- **One file, full system.** Products, data schemas, screens, flows, rules, agents, and skills — all expressed in the same syntax.
 - **Agent-first.** Built for the era where humans describe intent and machines execute it.
 
 ## Status
 
 Clear is in **v0.1** — active language design. The specification is being written. No compiler or runtime exists yet.
-
-What exists today:
 
 | Artifact | Status |
 |----------|--------|
@@ -74,6 +84,8 @@ flow SendNotification
 ```sh
 $ clear run notification-service.clear
 ```
+
+That's it. No boilerplate. No imports. No framework. Describe the system, run the file.
 
 ## Language Overview
 
