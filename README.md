@@ -32,6 +32,8 @@ Clear eliminates the translation steps. You write what the system should do — 
 
 Clear is a programming language where your **specification and implementation are the same file**. If you can describe what it should do, you have already written it.
 
+Created by [Sahin](https://github.com/sahin) at [Lovie](https://lovie.com) — agentic banking. Used in production at Lovie.
+
 ## Goals
 
 - **English, not code.** Write in structured natural language. No syntax to memorize, no abstractions to learn.
