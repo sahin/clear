@@ -22,7 +22,7 @@
 Traditional software development has too many layers between what you want and what runs:
 
 ```
-Traditional:    Idea → PRD → Design → Spec → Code → Tests → Build → Deploy → Machine Code
+Traditional:    Idea → PRD → Design → Spec → Code (Language) → Assembly → Kernel → Build → Machine Code
 Clear:          Idea → Clear → Machine Code
 ```
 
