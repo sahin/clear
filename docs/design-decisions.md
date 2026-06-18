@@ -7,7 +7,7 @@ This document explains the reasoning behind Clear's core design choices.
 The ultimate goal of Clear is to eliminate everything between human intent and machine execution:
 
 ```
-Traditional:    Idea → Spec → Code → Machine Code
+Traditional:    Idea → PRD → Design → Spec → Code → Tests → Build → Deploy → Machine Code
 Clear:          Idea → Clear → Machine Code
 ```
 
