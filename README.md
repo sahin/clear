@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://sahin.io/clear">Website</a> ·
-  <a href="https://github.com/sahin/clear/tree/main/spec">Language Spec</a> ·
-  <a href="https://github.com/sahin/clear/tree/main/examples">Examples</a> ·
-  <a href="https://github.com/sahin/clear/tree/main/docs">Docs</a>
+  <a href="https://github.com/varshinicb1/clear2.0">Website</a> ·
+  <a href="https://github.com/varshinicb1/clear2.0/tree/main/spec">Language Spec</a> ·
+  <a href="https://github.com/varshinicb1/clear2.0/tree/main/examples">Examples</a> ·
+  <a href="https://github.com/varshinicb1/clear2.0/tree/main/docs">Docs</a>
 </p>
 
 ---
@@ -32,7 +32,7 @@ Clear eliminates the translation steps. You write what the system should do — 
 
 Clear is a programming language where your **specification and implementation are the same file**. If you can describe what it should do, you have already written it.
 
-Created by [Sahin](https://github.com/sahin) at [Lovie](https://lovie.com) — agentic banking. Used in production at Lovie.
+Forked from [Sahin](https://github.com/sahin/clear) — originally created at [Lovie](https://lovie.com). Maintained at [varshinicb1/clear2.0](https://github.com/varshinicb1/clear2.0).
 
 ## Goals
 
@@ -53,7 +53,7 @@ Clear is in **v0.1** — active language design. The specification is being writ
 | Parser | ✅ `clear check` — parses and validates `.clear` files |
 | Code Generator | ✅ `clear build` — generates TypeScript code |
 | CLI | ✅ `clear` — check, build, run, init |
-| Website | [sahin.io/clear](https://sahin.io/clear) |
+| Website | [github.com/varshinicb1/clear2.0](https://github.com/varshinicb1/clear2.0) |
 | VS Code extension | Planned |
 | Full runtime | Planned |
 
@@ -141,8 +141,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Community
 
-- [GitHub Discussions](https://github.com/sahin/clear/discussions) — questions, proposals, ideas
-- [Issues](https://github.com/sahin/clear/issues) — bug reports and feature requests
+- [GitHub Issues](https://github.com/varshinicb1/clear2.0/issues) — bug reports and feature requests
 
 ## License
 

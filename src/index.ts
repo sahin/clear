@@ -5,7 +5,7 @@ import path from 'path'
 import { execSync } from 'child_process'
 import { parse } from './parser.js'
 import { validate } from './validator.js'
-import { generateCode, CodegenOptions } from './codegen/typescript.js'
+import { generateCode, CodegenOptions } from './codegen/index.js'
 import { ClearFile, ParseError } from './ast.js'
 
 const VERSION = '0.2.0'

@@ -1,5 +1,5 @@
 {
-  "name": "@sahin/clear",
+  "name": "@varshinicb1/clear",
   "version": "0.2.0",
   "description": "Clear — English to Machine Code. Nothing between.",
   "type": "module",
@@ -16,6 +16,7 @@
     "dev": "tsx src/index.ts",
     "check": "tsx src/index.ts check",
     "test": "node --test dist/**/*.test.js",
+    "test:update-snapshots": "UPDATE_SNAPSHOTS=1 node --test dist/**/*.test.js",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -25,7 +26,7 @@
     "declarative",
     "agent-first"
   ],
-  "author": "Sahin (https://github.com/sahin)",
+  "author": "varshinicb1 (https://github.com/varshinicb1)",
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.0.0",
@@ -33,6 +34,9 @@
     "typescript": "^7.0.1-rc"
   },
   "dependencies": {
-    "commander": "^12.1.0"
+    "commander": "^12.1.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "uuid": "^14.0.1"
   }
 }

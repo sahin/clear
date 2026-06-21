@@ -62,7 +62,7 @@ export function generateCode(ast: ClearFile, options: CodegenOptions = { target:
   return parts.join('\n')
 }
 
-function generateImports(ast: ClearFile, options: CodegenOptions): string {
+export function generateImports(ast: ClearFile, options: CodegenOptions): string {
   const lines: string[] = []
 
   if (options.target === 'hono') {

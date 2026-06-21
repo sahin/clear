@@ -34,4 +34,4 @@ This project follows the [Contributor Covenant](https://www.contributor-covenant
 
 ## Questions?
 
-Open a [Discussion](https://github.com/sahin/clear/discussions) — there are no bad questions at this stage.
+Open an [Issue](https://github.com/varshinicb1/clear2.0/issues).

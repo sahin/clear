@@ -258,10 +258,9 @@ export function parse(source: string, filename: string = '<stdin>'): ParseResult
       pos++
       // Check for children (next lines with deeper indent)
       if (!isEOF()) {
-        const nextIndent = getIndent(currentLine())
-        // Skip empty lines to find actual child content
+        // Skip empty/comment lines to find actual child content
         let scanPos = pos
-        let scanIndent = nextIndent
+        let scanIndent = 0
         while (scanPos < lines.length) {
           const sl = lines[scanPos].trim()
           if (sl !== '' && !sl.startsWith('//')) {

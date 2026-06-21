@@ -35,3 +35,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Design decisions document
 - Roadmap through v1.0
 - Website at sahin.io/clear
+- Website at github.com/varshinicb1/clear2.0
