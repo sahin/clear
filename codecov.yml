@@ -1,0 +1,61 @@
+# Codecov configuration for Clear
+# See https://docs.codecov.com/docs/codecov-yaml
+
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+comment:
+  layout: "diff, files"
+  behavior: default
+  require_changes: true
+  # Only post a comment when coverage actually changed
+  after_n_builds: 1
+
+coverage:
+  # How coverage precision is displayed
+  precision: 2
+  round: down
+  range: "70...100"
+
+  status:
+    # Overall project coverage (entire codebase)
+    project:
+      default:
+        target: 85%
+        threshold: 2%
+        base: auto
+        if_ci_failed: error
+        informational: false
+        only_pulls: false
+
+    # Coverage of lines added/changed in the PR
+    patch:
+      default:
+        target: 80%
+        threshold: 0%
+        base: auto
+        if_ci_failed: error
+        informational: false
+        only_pulls: true
+
+    # Don't require changes to not degrade coverage
+    changes: false
+
+# Files and directories to exclude from coverage calculations
+ignore:
+  - "dist/**"
+  - "**/*.test.*"
+  - "**/__snapshots__/**"
+  - "**/__mocks__/**"
+  - "examples/**"
+  - "spec/**"
+  - "docs/**"
+
+# Define coverage flags for different test suites
+flags:
+  unit-tests:
+    paths:
+      - src/
+    carryforward: true

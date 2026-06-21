@@ -1,6 +1,6 @@
 {
   "name": "@varshinicb1/clear",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Clear — English to Machine Code. Nothing between.",
   "type": "module",
   "main": "./dist/index.js",
@@ -16,6 +16,7 @@
     "dev": "tsx src/index.ts",
     "check": "tsx src/index.ts check",
     "test": "node --test dist/**/*.test.js",
+    "test:coverage": "c8 --reporter=lcov --reporter=text node --test dist/**/*.test.js",
     "test:update-snapshots": "UPDATE_SNAPSHOTS=1 node --test dist/**/*.test.js",
     "prepublishOnly": "npm run build"
   },
@@ -30,6 +31,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "c8": "^11.0.0",
     "tsx": "^4.19.0",
     "typescript": "^7.0.1-rc"
   },

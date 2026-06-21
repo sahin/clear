@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [18, 20, 22]
 
     steps:
       - uses: actions/checkout@v4
@@ -25,22 +25,35 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: TypeScript type check
-        run: npx tsc --noEmit
+      - name: Build
+        run: npm run build
 
-      - name: Check all examples
-        run: |
-          for f in examples/*.clear; do
-            echo "Checking $f..."
-            node dist/index.js check "$f"
-          done
+      - name: Run tests (creates missing snapshots)
+        run: npm test
 
-      - name: Build check (generate code)
-        run: |
-          for f in examples/*.clear; do
-            echo "Building $f..."
-            node dist/index.js build "$f" --out /dev/null
-          done
+      - name: Verify snapshots are committed
+        uses: ./.github/actions/verify-snapshots
+
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Run tests with coverage
+        run: npm run test:coverage
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          directory: ./coverage
+          fail_ci_if_error: false
 
   lint:
     runs-on: ubuntu-latest

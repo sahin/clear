@@ -1,0 +1,38 @@
+name: 'Verify Snapshots'
+description: 'Checks that all codegen snapshot files are committed and up to date'
+inputs:
+  snapshot-path:
+    description: 'Path to the snapshot directory to check'
+    required: false
+    default: 'src/codegen/__snapshots__/'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check for uncommitted snapshot changes
+      shell: bash
+      run: |
+        SNAPSHOT_PATH="${{ inputs.snapshot-path }}"
+        UNTRACKED=$(git ls-files --others --exclude-standard "$SNAPSHOT_PATH" 2>/dev/null)
+        MODIFIED=$(git diff --name-only "$SNAPSHOT_PATH" 2>/dev/null)
+
+        if [ -n "$UNTRACKED" ] || [ -n "$MODIFIED" ]; then
+          echo "❌ Snapshot files are out of date!"
+          echo ""
+          if [ -n "$UNTRACKED" ]; then
+            echo "New snapshot files (not committed):"
+            echo "$UNTRACKED" | sed 's/^/  /'
+          fi
+          if [ -n "$MODIFIED" ]; then
+            echo "Modified snapshot files (codegen output changed):"
+            echo "$MODIFIED" | sed 's/^/  /'
+          fi
+          echo ""
+          echo "Run the following commands to resolve:"
+          echo "  1. npm run test:update-snapshots"
+          echo "  2. Review the changed .snap files with git diff"
+          echo "  3. Commit them with your changes"
+          exit 1
+        fi
+
+        echo "✅ All snapshot files are committed and up to date."

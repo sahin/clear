@@ -1,7 +1,7 @@
 import { ClearFile, Property, Value, FieldDef, TopLevelBlock, FlowStep, ScreenSection, AgentHandler, ApiRoute } from '../ast.js'
 
 export interface CodegenOptions {
-  target: 'typescript' | 'hono' | 'express'
+  target: 'typescript' | 'hono' | 'express' | 'fastify' | 'koa'
   outDir?: string
 }
 

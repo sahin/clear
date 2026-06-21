@@ -2,10 +2,10 @@
 
 import fs from 'fs'
 import path from 'path'
-import { execSync } from 'child_process'
 import { parse } from './parser.js'
 import { validate } from './validator.js'
 import { generateCode, CodegenOptions } from './codegen/index.js'
+import { runInterpreter } from './interpreter/index.js'
 import { ClearFile, ParseError } from './ast.js'
 
 const VERSION = '0.2.0'
@@ -78,13 +78,19 @@ USAGE:
   clear --version                  Show version
 
 OPTIONS (build):
-  --target <ts|hono|express>   Code generation target (default: ts)
-  --out <file>                 Output file path (default: stdout)
+  --target <ts|hono|express|fastify|koa>   Code generation target (default: ts)
+  --out <file>                             Output file path (default: stdout)
+
+OPTIONS (run):
+  --port <number>   Port to run the interpreter on (default: 8080)
+  --watch           Watch file for changes and hot reload
+  --verbose         Log all HTTP requests with status codes and timing
 
 EXAMPLES:
   clear check app.clear
   clear build app.clear --target express --out app.ts
   clear run app.clear
+  clear run app.clear --port 3000 --verbose
   clear init my-project
 `)
 }
@@ -189,87 +195,83 @@ async function cmdRun(args: string[]) {
     process.exit(1)
   }
 
-  // Print the product and blocks found
-  console.log(`\x1b[36mClear v${VERSION} — ${result.ast.product.name}\x1b[0m`)
-  console.log(`File: ${filepath}`)
-  console.log('')
+  // Check for interpretable blocks
+  const apiBlocks = result.ast.blocks.filter(b => b.type === 'api' && (b as any).protocol === 'REST')
+  const flowBlocks = result.ast.blocks.filter(b => b.type === 'flow')
 
-  // Show structure
-  function renderValue(v: any): string {
-    if (v?.type === 'string') return v.value
-    if (v?.type === 'number') return String(v.value)
-    if (v?.type === 'boolean') return String(v.value)
-    if (v?.type === 'list') return '[' + v.value.map(renderValue).join(', ') + ']'
-    if (v?.type === 'special') return v.keyword
-    if (v?.type === 'env') return `env:${v.name}`
-    return v?.value ?? v?.name ?? JSON.stringify(v) ?? '?'
-  }
-
-  function blockName(block: any): string {
-    if (block.type === 'api') return `${block.protocol} ${block.path}`
-    if (block.type === 'deploy') return block.target
-    if (block.type === 'config') return block.name
-    return block.name ?? '?'
-  }
-
-  console.log(`Product: ${result.ast.product.name}`)
-  for (const prop of result.ast.product.properties) {
-    console.log(`  ${prop.key}:`, prop.value ? renderValue(prop.value) : prop.args.join(' '))
-  }
-  console.log('')
-
-  for (const block of result.ast.blocks) {
-    const b = block as any
-    console.log(`  ${block.type}: ${blockName(b)}`)
-
-    if (block.type === 'data' && b.fields) {
-      for (const f of b.fields) {
-        const typeProp = f.properties.find((p: any) => p.key === 'type')
-        const typeStr = typeProp ? typeProp.args.join(' ') : 'unknown'
-        console.log(`    field ${f.name}: ${typeStr}`)
-      }
-    }
-    if (block.type === 'flow' && b.steps) {
-      for (const s of b.steps) {
-        console.log(`    step ${s.name}`)
-      }
-    }
-    if (block.type === 'agent' && b.handlers) {
-      for (const h of b.handlers) {
-        console.log(`    on ${h.event}`)
-      }
-    }
-    if (block.type === 'api' && b.routes) {
-      for (const r of b.routes) {
-        console.log(`    ${r.method} ${r.path}`)
-      }
-    }
-    if (block.type === 'screen' && b.sections) {
-      for (const s of b.sections) {
-        console.log(`    section ${s.name}`)
-      }
-    }
+  if (apiBlocks.length === 0 && flowBlocks.length === 0) {
+    // Print structure info for non-executable files
+    console.log(`\x1b[36mClear v${VERSION} — ${result.ast.product.name}\x1b[0m`)
+    console.log(`File: ${filepath}`)
     console.log('')
+
+    function blockName(block: any): string {
+      if (block.type === 'api') return `${block.protocol} ${block.path}`
+      if (block.type === 'deploy') return block.target
+      if (block.type === 'config') return block.name
+      return block.name ?? '?'
+    }
+
+    console.log(`Product: ${result.ast.product.name}`)
+    console.log('')
+
+    for (const block of result.ast.blocks) {
+      const b = block as any
+      console.log(`  ${block.type}: ${blockName(b)}`)
+
+      if (block.type === 'data' && b.fields) {
+        for (const f of b.fields) {
+          const typeProp = f.properties.find((p: any) => p.key === 'type')
+          const typeStr = typeProp ? typeProp.args.join(' ') : 'unknown'
+          console.log(`    field ${f.name}: ${typeStr}`)
+        }
+      }
+      if (block.type === 'flow' && b.steps) {
+        for (const s of b.steps) {
+          console.log(`    step ${s.name}`)
+        }
+      }
+      if (block.type === 'agent' && b.handlers) {
+        for (const h of b.handlers) {
+          console.log(`    on ${h.event}`)
+        }
+      }
+      if (block.type === 'api' && b.routes) {
+        for (const r of b.routes) {
+          console.log(`    ${r.method} ${r.path}`)
+        }
+      }
+      if (block.type === 'screen' && b.sections) {
+        for (const s of b.sections) {
+          console.log(`    section ${s.name}`)
+        }
+      }
+      console.log('')
+    }
+
+    const hints: string[] = []
+    if (result.ast.blocks.some(b => b.type === 'flow')) hints.push('flows can be run with the interpreter')
+    if (result.ast.blocks.some(b => b.type === 'api')) hints.push('add "REST" protocol to enable API server')
+    if (hints.length === 0) hints.push('try adding a "data" block and "api REST" block')
+    console.log(`\x1b[33m⚠ No executable blocks found — ${hints.join(', ')}\x1b[0m`)
+    return
   }
 
-  // Generate and execute TypeScript
-  try {
-    const code = generateCode(result.ast)
-    const tmpFile = path.join(process.cwd(), '.clear-tmp.ts')
-    fs.writeFileSync(tmpFile, code, 'utf-8')
-    console.log(`\x1b[2mGenerated code written to ${tmpFile}\x1b[0m`)
-    console.log('\x1b[32m✓ Parsed and validated successfully\x1b[0m')
+  // Parse flags
+  const portFlag = args.indexOf('--port')
+  const port = portFlag >= 0 && args[portFlag + 1] ? parseInt(args[portFlag + 1], 10) : undefined
+  const watch = args.includes('--watch')
+  const verbose = args.includes('--verbose')
 
-    try {
-      execSync(`npx tsx --eval "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`, {
-        stdio: 'pipe',
-        timeout: 10000,
-      })
-    } catch {
-      // Generated code may not be runnable without deps, that's OK
-    }
+  // Resolve the file path for watching
+  const resolvedPath = path.resolve(filepath)
+
+  // Run the interpreter
+  try {
+    runInterpreter(result.ast, { port, watch: watch ? resolvedPath : undefined, verbose })
   } catch (err: any) {
-    console.error('Generation error:', err.message)
+    console.error('Interpreter error:', err.message)
+    process.exit(1)
   }
 }
 
