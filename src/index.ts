@@ -2,6 +2,7 @@
 
 import fs from 'fs'
 import path from 'path'
+import { execSync } from 'child_process'
 import { parse } from './parser.js'
 import { validate } from './validator.js'
 import { generateCode, CodegenOptions } from './codegen/typescript.js'
@@ -128,14 +129,15 @@ async function cmdCheck(files: string[]) {
 }
 
 async function cmdBuild(args: string[]) {
-  const filepath = args.find(a => !a.startsWith('--'))
+  const filepathArg = args.find(a => !a.startsWith('--'))
   const targetFlag = args.indexOf('--target')
   const outFlag = args.indexOf('--out')
 
-  if (!filepath) {
+  if (!filepathArg) {
     console.error('Usage: clear build <file.clear> [--target ts|hono|express] [--out <file>]')
     process.exit(1)
   }
+  const filepath: string = filepathArg
 
   const options: CodegenOptions = {
     target: 'typescript',
@@ -170,11 +172,12 @@ async function cmdBuild(args: string[]) {
 }
 
 async function cmdRun(args: string[]) {
-  const filepath = args[0]
-  if (!filepath) {
+  const filepathArg = args[0]
+  if (!filepathArg) {
     console.error('Usage: clear run <file.clear>')
     process.exit(1)
   }
+  const filepath: string = filepathArg
 
   const result = processFile(filepath)
   if (!result) process.exit(1)
@@ -257,8 +260,6 @@ async function cmdRun(args: string[]) {
     console.log(`\x1b[2mGenerated code written to ${tmpFile}\x1b[0m`)
     console.log('\x1b[32m✓ Parsed and validated successfully\x1b[0m')
 
-    // Try to run it with tsx
-    const { execSync } = await import('child_process')
     try {
       execSync(`npx tsx --eval "${code.replace(/"/g, '\\"').replace(/\n/g, '\\n')}"`, {
         stdio: 'pipe',
