@@ -10,7 +10,9 @@ Thank you for your interest in contributing to Clear. The language is in early d
 | Examples | Write `.clear` files that demonstrate real-world use cases |
 | Specification | Help formalize grammar rules in `spec/` |
 | Documentation | Improve explanations, fix typos, add diagrams |
-| Tooling ideas | Propose CLI commands, editor integrations, or developer workflows |
+| Tooling | Improve the parser, validator, code generator, or CLI |
+| Codegen backends | Add new target backends (Python, Rust, Go, React, etc.) |
+| Editor support | VS Code extension, syntax highlighting, LSP integration |
 
 ## How to Contribute
 

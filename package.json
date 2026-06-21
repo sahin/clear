@@ -1,0 +1,38 @@
+{
+  "name": "@sahin/clear",
+  "version": "0.2.0",
+  "description": "Clear — English to Machine Code. Nothing between.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "bin": {
+    "clear": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "check": "tsx src/index.ts check",
+    "test": "node --test dist/**/*.test.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "clear",
+    "language",
+    "specification",
+    "declarative",
+    "agent-first"
+  ],
+  "author": "Sahin (https://github.com/sahin)",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "commander": "^12.1.0"
+  }
+}

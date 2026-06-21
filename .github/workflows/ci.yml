@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+      - name: Check all examples
+        run: |
+          for f in examples/*.clear; do
+            echo "Checking $f..."
+            node dist/index.js check "$f"
+          done
+
+      - name: Build check (generate code)
+        run: |
+          for f in examples/*.clear; do
+            echo "Building $f..."
+            node dist/index.js build "$f" --out /dev/null
+          done
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Validate spec files exist
+        run: |
+          test -f spec/syntax.md
+          test -f spec/keywords.md
+          test -f spec/types.md
+          test -f spec/execution.md
+          test -f spec/README.md
+      - name: Validate example count
+        run: |
+          count=$(ls -1 examples/*.clear 2>/dev/null | wc -l)
+          echo "Found $count examples"
+          test "$count" -ge 6

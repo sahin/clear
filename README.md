@@ -49,11 +49,13 @@ Clear is in **v0.1** — active language design. The specification is being writ
 | Artifact | Status |
 |----------|--------|
 | Language spec | Draft (see `spec/`) |
-| Examples | 10+ real-world use cases (see `examples/`) |
-| Website | Live at [sahin.io/clear](https://sahin.io/clear) |
-| CLI | Planned |
+| Examples | 6 real-world use cases (see `examples/`) |
+| Parser | ✅ `clear check` — parses and validates `.clear` files |
+| Code Generator | ✅ `clear build` — generates TypeScript code |
+| CLI | ✅ `clear` — check, build, run, init |
+| Website | [sahin.io/clear](https://sahin.io/clear) |
 | VS Code extension | Planned |
-| Runtime | Planned |
+| Full runtime | Planned |
 
 ## Quick Look
 

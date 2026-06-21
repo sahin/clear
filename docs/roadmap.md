@@ -1,29 +1,38 @@
 # Roadmap
 
-## Current: v0.1 — Language Design
+## Current: v0.2 — Parser, Validator & Code Generator
 
-The specification is being written. No tooling exists yet.
+The Clear parser, validator, CLI, and TypeScript code generator are implemented.
 
 | Milestone | Status |
 |-----------|--------|
 | Core keywords defined | Done |
-| Syntax rules formalized | In progress |
-| Type system specified | In progress |
-| 10+ real-world examples | Done |
+| Syntax rules formalized | Done |
+| Type system specified | Done |
+| 6 real-world examples | Done |
 | Website live | Done |
+| Tokenizer | Done |
+| AST definition | Done |
+| Parser implementation | Done |
+| Validation rules | Done |
+| Error messages | Done |
+| CLI: `clear check <file>` | Done |
+| CLI: `clear build <file>` | Done |
+| CLI: `clear run <file>` | Done |
+| CLI: `clear init <name>` | Done |
+| TypeScript codegen backend | Done |
+| GitHub Actions CI | Done |
 
-## Next: v0.2 — Parser & Validator
-
-Build a parser that can read `.clear` files and validate them against the spec.
+## Next: v0.3 — Additional Codegen Backends & Runtime
 
 | Milestone | Status |
 |-----------|--------|
-| Tokenizer | Planned |
-| AST definition | Planned |
-| Parser implementation | Planned |
-| Validation rules | Planned |
-| Error messages | Planned |
-| CLI: `clear check <file>` | Planned |
+| Express.js codegen backend | Planned |
+| Hono codegen backend | Planned |
+| Cloudflare Workers target | Planned |
+| Docker target | Planned |
+| Interpreter (direct execute) | Planned |
+| Hot reload | Planned |
 
 ## v0.3 — Code Generation
 
